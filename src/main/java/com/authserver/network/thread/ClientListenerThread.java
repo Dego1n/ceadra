@@ -1,0 +1,185 @@
+package com.authserver.network.thread;
+
+import com.authserver.database.dao.account.AccountDao;
+import com.authserver.database.entity.account.Account;
+import com.authserver.network.instance.GameServerSocketInstance;
+import com.authserver.network.model.GameServer;
+import com.authserver.network.packet.AbstractSendablePacket;
+import com.authserver.network.packet.ClientPackets;
+import com.authserver.network.packet.auth2client.AuthOk;
+import com.authserver.network.packet.auth2client.ConnectionAccepted;
+import com.authserver.network.packet.auth2client.GameServerAuthOk;
+import com.authserver.network.packet.auth2client.ServerList;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousSocketChannel;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
+public class ClientListenerThread extends AbstractListenerThread {
+    private final AsynchronousSocketChannel _socketChannel;
+
+    private short protocolVersion;
+
+    private int sessionId;
+
+    private Account _account;
+
+    private GameServer _gameServer;
+
+    private int _gameSessionKey;
+
+    public ClientListenerThread(AsynchronousSocketChannel socketChannel)
+    {
+        _socketChannel = socketChannel;
+    }
+
+    public void sendPacket(AbstractSendablePacket packet)
+    {
+        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()));
+        System.out.println("Sending this: "+Arrays.toString(packet.prepareAndGetData()));
+    }
+
+    public void receivableStream()
+    {
+        try
+        {
+            while( _socketChannel.isOpen())
+            {
+                // Выделаем память 2 байта в байтбаффер для размера пакета
+                ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
+
+                // Читаем размер пакета
+                int bytesRead = _socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
+
+                //Конвертим байтбаффер в массив байтов
+                byte[] bytePacketSize =  byteBuffer.array();
+
+                //Конвертим массив байтов в шорт и получаем длинну пакета
+                short size = (short)(((bytePacketSize[1] & 0xFF) << 8) | (bytePacketSize[0] & 0xFF));
+
+                //Выделяем память под пакет нужного размера - 2 байта (размер мы уже получили)
+                byteBuffer = ByteBuffer.allocate(size - 2);
+
+                //Читаем пакет
+                _socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
+
+                System.out.println(Arrays.toString(byteBuffer.array()));
+
+                //Передаем пакет Хендлеру
+                ClientPackets.HandlePacket(this,byteBuffer.array());
+            }
+        }
+        catch (InterruptedException | ExecutionException e)
+        {
+            e.printStackTrace();
+        } catch (TimeoutException e)
+        {
+            // The user exceeded the 20 second timeout, so close the connection
+            _socketChannel.write( ByteBuffer.wrap( "Good Bye\n".getBytes() ) );
+            System.out.println( "Connection timed out, closing connection" );
+        }
+
+        System.out.println( "End of conversation" );
+        try
+        {
+            // Close the connection if we need to
+            if( _socketChannel.isOpen() )
+            {
+                _socketChannel.close();
+            }
+        }
+        catch (IOException e1)
+        {
+            e1.printStackTrace();
+        }
+    }
+
+    public void onProtocolVersionReceived(short protocolVersion)
+    {
+        this.protocolVersion = protocolVersion;
+        Random rnd = new Random();
+        sessionId = rnd.nextInt();
+        sendPacket(new ConnectionAccepted(sessionId));
+    }
+
+    public void Auth(int sessionId, String username, String password)
+    {
+        if(this.sessionId == sessionId)
+        {
+            AccountDao accountDao = new AccountDao();
+
+            Account account = accountDao.getAccountByUsername(username);
+            if(account != null && account.getPassword().equals(password))
+            {
+                //ух... удачно авторизировались, записываем аккаунт в тред и отправляем AuthOk
+                _account = account;
+                sendPacket(new AuthOk());
+            }
+            else
+            {
+                System.out.println("credentials are invalid");
+                closeConnection();
+            }
+        }
+        else
+        {
+            System.out.println("Session key is invalid");
+            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            closeConnection();
+        }
+    }
+
+    public void SendServerList(int sessionId)
+    {
+        if(this.sessionId == sessionId)
+        {
+            List<GameServer> gameServers = GameServerSocketInstance.getInstance().getGameServerList();
+            sendPacket(new ServerList(gameServers));
+        }
+        else
+        {
+            System.out.println("Session key is invalid");
+            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            closeConnection();
+        }
+    }
+
+    public void closeConnection()
+    {
+        try {
+            _socketChannel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void ServerLogin(int session_key, int server_id) {
+        if(this.sessionId == sessionId)
+        {
+            _gameServer = GameServerSocketInstance.getInstance().getGameServerList().get(server_id);
+            if(_gameServer == null)
+            {
+                //TODO: GameServerAuthFail packet
+                closeConnection();
+            }
+
+            Random rnd = new Random();
+            _gameSessionKey = rnd.nextInt();
+            sendPacket(new GameServerAuthOk(_gameSessionKey));
+        }
+        else
+        {
+            System.out.println("Session key is invalid");
+            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            closeConnection();
+        }
+    }
+}
+
+

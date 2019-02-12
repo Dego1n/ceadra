@@ -4,13 +4,13 @@ import com.authserver.util.PropertiesParser;
 
 public class Config {
 
-    private static String configDir = "./config";
+    private static final String configDir = "./config";
 
-    private static String authSocketProperties = configDir + "/network/authsocket.ini";
+    private static final String authSocketProperties = configDir + "/network/authsocket.ini";
     public static String AUTH_SOCKET_LISTEN_ADDRESS;
     public static short AUTH_SOCKET_LISTEN_PORT;
 
-    private static String databaseProperties = configDir + "/database/database.ini";
+    private static final String databaseProperties = configDir + "/database/database.ini";
     public static String DATABASE_DRIVER;
     public static String DATABASE_DIALECT;
     public static String DATABASE_URL;

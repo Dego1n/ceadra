@@ -1,8 +1,7 @@
 package com.authserver.network;
 
 import com.authserver.config.Config;
-import com.authserver.network.instance.AuthSocketInstance;
-import com.authserver.network.thread.ClientListenerThread;
+import com.authserver.network.thread.GameServerListenerThread;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -10,16 +9,16 @@ import java.nio.channels.AsynchronousServerSocketChannel;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
-public class AuthSocket {
+public class GameServerListenerSocket {
 
-    public AuthSocket()
+    public GameServerListenerSocket()
     {
         try
         {
-            System.out.println("Listening clients on "+Config.AUTH_SOCKET_LISTEN_ADDRESS+":"+Config.AUTH_SOCKET_LISTEN_PORT);
+            System.out.println("Listening game servers on "+ Config.AUTH_SOCKET_LISTEN_ADDRESS+":1234");
             // Создаем AsynchronousServerSocketChannel, адрес и порт слушателя достаем из конфига
             final AsynchronousServerSocketChannel listener =
-                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS,Config.AUTH_SOCKET_LISTEN_PORT));
+                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS,1234));
 
             // Делаем коллбек на accept
             listener.accept( null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
@@ -29,11 +28,12 @@ public class AuthSocket {
                 {
                     // Принимаем соединение
                     listener.accept( null, this );
-                    System.out.println("Got clientListenerThread");
+                    System.out.println("Got gameserver");
                     ///
-
-                    ClientListenerThread clientListenerThread = AuthSocketInstance.getInstance().newClient(ch);
-                    clientListenerThread.receivableStream();
+                    GameServerListenerThread gameServer = new GameServerListenerThread(ch);
+                    gameServer.receivableStream();
+                    //ClientListenerThread client = AuthSocketInstance.getInstance().newClient(ch);
+                    //client.receivableStream();
 
                 }
 

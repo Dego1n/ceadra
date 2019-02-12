@@ -1,7 +1,7 @@
 package com.authserver.network.instance;
 
 import com.authserver.network.AuthSocket;
-import com.authserver.network.model.Client;
+import com.authserver.network.thread.ClientListenerThread;
 
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.ArrayList;
@@ -19,19 +19,19 @@ public class AuthSocketInstance {
         return _instance;
     }
 
-    private List<Client> _clients;
+    private final List<ClientListenerThread> _clientListenerThreads;
 
     private AuthSocketInstance()
     {
         AuthSocket _socket = new AuthSocket();
-        _clients = new ArrayList<>();
+        _clientListenerThreads = new ArrayList<>();
     }
 
-    public Client newClient(AsynchronousSocketChannel socketChannel)
+    public ClientListenerThread newClient(AsynchronousSocketChannel socketChannel)
     {
-        Client client = new Client(socketChannel);
-        _clients.add(client);
-        return client;
+        ClientListenerThread clientListenerThread = new ClientListenerThread(socketChannel);
+        _clientListenerThreads.add(clientListenerThread);
+        return clientListenerThread;
     }
 
 }

@@ -49,4 +49,11 @@ public class AccountDao {
         }
 
     }
+
+    public Account getAccountByUsername(String username)
+    {
+        try(Session session = HibernateSessionFactory.getSessionFactory().openSession()) {
+            return session.createQuery("from Account where username = :username", Account.class).setParameter("username", username).list().stream().findFirst().orElse(null);
+        }
+    }
 }

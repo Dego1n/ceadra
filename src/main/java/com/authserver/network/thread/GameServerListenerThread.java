@@ -1,8 +1,7 @@
-package com.authserver.network.model;
+package com.authserver.network.thread;
 
-import com.authserver.network.ClientPackets;
-import com.authserver.network.serverpackets.AbstractSendablePacket;
-import com.authserver.network.serverpackets.ConnectionAccepted;
+import com.authserver.network.packet.AbstractSendablePacket;
+import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -12,19 +11,18 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-public class Client {
-    private AsynchronousSocketChannel _socketChannel;
+public class GameServerListenerThread extends AbstractListenerThread{
 
-    public short protocolVersion;
+    private final AsynchronousSocketChannel _socketChannel;
 
-    public Client(AsynchronousSocketChannel socketChannel)
+    public GameServerListenerThread(AsynchronousSocketChannel socketChanel)
     {
-        _socketChannel = socketChannel;
+        _socketChannel = socketChanel;
     }
 
     public void sendPacket(AbstractSendablePacket packet)
     {
-        _socketChannel.write(ByteBuffer.wrap(packet.getData()));
+        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()));
     }
 
     public void receivableStream()
@@ -54,7 +52,7 @@ public class Client {
                 System.out.println(Arrays.toString(byteBuffer.array()));
 
                 //Передаем пакет Хендлеру
-                ClientPackets.HandlePacket(this,byteBuffer.array());
+                GameServerPacketHandler.handlePacket(this,byteBuffer.array());
             }
         }
         catch (InterruptedException | ExecutionException e)
@@ -81,10 +79,20 @@ public class Client {
             e1.printStackTrace();
         }
     }
+}
+class GameServerPacketHandler {
 
-    public void onProtocolVersionReceived(short protocolVersion)
+    static void handlePacket(GameServerListenerThread authServer, byte [] packet)
     {
-        this.protocolVersion = protocolVersion;
-        sendPacket(new ConnectionAccepted());
+        short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
+        System.out.println("received packet from game server with opcode: "+packetID);
+
+        switch(packetID)
+        {
+            case 0x01:
+                new RequestRegisterGameServer(authServer,packet);
+                break;
+        }
     }
 }
+

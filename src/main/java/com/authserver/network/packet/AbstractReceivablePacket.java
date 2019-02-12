@@ -1,25 +1,23 @@
-package com.authserver.network.clientpackets;
+package com.authserver.network.packet;
 
-import com.authserver.network.model.Client;
-
-import java.nio.charset.StandardCharsets;
+import com.authserver.network.thread.AbstractListenerThread;
 
 public abstract class AbstractReceivablePacket {
 
-    Client _client;
+    private final AbstractListenerThread _listenerThread;
     private final byte[] packet;
     private int pointer;
 
-    public AbstractReceivablePacket(Client client, byte[] packet)
+    protected AbstractReceivablePacket(AbstractListenerThread listenerThread, byte[] packet)
     {
-        _client = client;
+        _listenerThread = listenerThread;
         this.packet = packet;
         this.pointer = 2; //skipping packet id
     }
 
-    abstract void handle();
+    protected abstract void handle();
     
-    public int readD()
+    protected int readD()
     {
         int result = packet[pointer++] & 0xff;
         result |= (packet[pointer++] << 8) & 0xff00;
@@ -54,14 +52,14 @@ public abstract class AbstractReceivablePacket {
         return Double.longBitsToDouble(result);
     }
 
-    public String readS()
+    protected String readS()
     {
         String result = null;
         try
         {
-            result = new String(packet, pointer, packet.length - pointer, StandardCharsets.UTF_16LE);
+            result = new String(packet, pointer, packet.length - pointer);
             result = result.substring(0, result.indexOf(0x00));
-            pointer += (result.length() * 2) + 2;
+            pointer += (result.length()) + 2;
         }
         catch (Exception e)
         {

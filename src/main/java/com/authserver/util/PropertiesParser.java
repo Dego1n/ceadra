@@ -15,7 +15,7 @@ public final class PropertiesParser
         this(new File(name));
     }
 
-    public PropertiesParser(File file)
+    private PropertiesParser(File file)
     {
         _file = file;
         try (FileInputStream fileInputStream = new FileInputStream(file))

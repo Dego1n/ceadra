@@ -1,10 +1,8 @@
-package com.authserver.network.serverpackets;
-
-import com.authserver.network.IServerPacket;
+package com.authserver.network.packet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 public abstract class AbstractSendablePacket implements IServerPacket {
 
@@ -15,8 +13,6 @@ public abstract class AbstractSendablePacket implements IServerPacket {
     protected AbstractSendablePacket()
     {
         _bao = new ByteArrayOutputStream();
-        build();
-        prepareToSend();
     }
 
     protected void writeD(int value)
@@ -57,7 +53,7 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         {
             if (text != null)
             {
-                _bao.write(text.getBytes(StandardCharsets.UTF_16LE));
+                _bao.write(text.getBytes());
             }
         }
         catch (Exception e)
@@ -98,20 +94,20 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         return _bao.size() + 2;
     }
 
-    private void prepareToSend()
+    abstract public void build();
+
+    public byte[] prepareAndGetData()
     {
         short packetLength = (short)(_bao.size() + 2);
         ByteArrayOutputStream finalPacket = new ByteArrayOutputStream();
         finalPacket.write(packetLength & 0xff);
         finalPacket.write((packetLength >> 8) & 0xff);
         finalPacket.write(_bao.toByteArray(),0,packetLength - 2);
+        System.out.println("Actual packet before size add: "+ Arrays.toString(_bao.toByteArray()));
         System.out.println("Packet size: "+ packetLength);
-        packet = finalPacket.toByteArray();
-    }
-    abstract public void build();
 
-    public byte[] getData()
-    {
+        packet = finalPacket.toByteArray();
+
         return packet;
     }
 }

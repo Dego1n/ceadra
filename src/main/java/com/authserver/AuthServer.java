@@ -1,17 +1,21 @@
 package com.authserver;
 
 import com.authserver.config.Config;
-import com.authserver.database.dao.account.AccountDao;
+import com.authserver.database.presets.AccountPresets;
 import com.authserver.network.instance.AuthSocketInstance;
+import com.authserver.network.instance.GameServerSocketInstance;
 
-public class AuthServer {
+import java.util.Arrays;
+
+class AuthServer {
 
     public static void main( String[] args )
     {
+        System.out.println(Arrays.toString("1_username".getBytes()));
         Config.Load();
-        AccountDao accountDao = new AccountDao();
-        System.out.println(accountDao.getAccounts().size());
+        AccountPresets.Load();
         AuthSocketInstance.getInstance();
+        GameServerSocketInstance.getInstance();
         try
         {
             Thread.sleep( 6000000 );

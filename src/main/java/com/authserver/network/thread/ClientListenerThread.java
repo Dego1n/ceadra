@@ -14,6 +14,8 @@ import com.authserver.network.packet.auth2client.ServerList;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
+import java.nio.channels.CompletionHandler;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -34,15 +36,40 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     private int _gameSessionKey;
 
+    private boolean writeIsPending = false;
+
+    private List<AbstractSendablePacket> packetBuffer;
+
     public ClientListenerThread(AsynchronousSocketChannel socketChannel)
     {
         _socketChannel = socketChannel;
+        packetBuffer = new ArrayList();
     }
 
     public void sendPacket(AbstractSendablePacket packet)
     {
-        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()));
-        System.out.println("Sending this: "+Arrays.toString(packet.prepareAndGetData()));
+        if(writeIsPending)
+            packetBuffer.add(packet);
+        else {
+            writeIsPending = true;
+            _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, ClientListenerThread>() {
+                @Override
+                public void completed(Integer result, ClientListenerThread thread) {
+                    thread.writeIsPending = false;
+                    if(packetBuffer.size() > 0)
+                    {
+                        thread.sendPacket(packetBuffer.get(0));
+                    }
+                }
+
+                @Override
+                public void failed(Throwable exc, ClientListenerThread thread) {
+                    //TODO: close connection?
+                    thread.writeIsPending = false;
+                }
+            });
+            System.out.println("Sending this: " + Arrays.toString(packet.prepareAndGetData()));
+        }
     }
 
     public void receivableStream()
@@ -152,6 +179,7 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     public void closeConnection()
     {
+        System.out.println("trying to close connection");
         try {
             _socketChannel.close();
         } catch (IOException e) {

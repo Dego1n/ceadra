@@ -1,5 +1,6 @@
 package com.authserver.network.thread;
 
+import com.authserver.network.instance.GameServerSocketInstance;
 import com.authserver.network.packet.AbstractSendablePacket;
 import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
 
@@ -34,21 +35,20 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 // Выделаем память 2 байта в байтбаффер для размера пакета
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
-                // Читаем размер пакета
-                int bytesRead = _socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
+                    // Читаем размер пакета
+                    int bytesRead = _socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS); //TODO: change timeout
 
-                //Конвертим байтбаффер в массив байтов
-                byte[] bytePacketSize =  byteBuffer.array();
+                    //Конвертим байтбаффер в массив байтов
+                    byte[] bytePacketSize = byteBuffer.array();
 
-                //Конвертим массив байтов в шорт и получаем длинну пакета
-                short size = (short)(((bytePacketSize[1] & 0xFF) << 8) | (bytePacketSize[0] & 0xFF));
+                    //Конвертим массив байтов в шорт и получаем длинну пакета
+                    short size = (short) (((bytePacketSize[1] & 0xFF) << 8) | (bytePacketSize[0] & 0xFF));
 
-                //Выделяем память под пакет нужного размера - 2 байта (размер мы уже получили)
-                byteBuffer = ByteBuffer.allocate(size - 2);
+                    //Выделяем память под пакет нужного размера - 2 байта (размер мы уже получили)
+                    byteBuffer = ByteBuffer.allocate(size - 2);
 
-                //Читаем пакет
-                _socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
-
+                    //Читаем пакет
+                    _socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
                 System.out.println(Arrays.toString(byteBuffer.array()));
 
                 //Передаем пакет Хендлеру
@@ -57,15 +57,17 @@ public class GameServerListenerThread extends AbstractListenerThread{
         }
         catch (InterruptedException | ExecutionException e)
         {
-            e.printStackTrace();
-        } catch (TimeoutException e)
+
+        }
+        catch (TimeoutException e)
         {
-            // The user exceeded the 20 second timeout, so close the connection
-            _socketChannel.write( ByteBuffer.wrap( "Good Bye\n".getBytes() ) );
             System.out.println( "Connection timed out, closing connection" );
         }
 
         System.out.println( "End of conversation" );
+
+        GameServerSocketInstance.getInstance().removeGameServerByListenerThread(this);
+
         try
         {
             // Close the connection if we need to

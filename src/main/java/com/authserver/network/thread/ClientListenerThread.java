@@ -6,10 +6,7 @@ import com.authserver.network.instance.GameServerSocketInstance;
 import com.authserver.network.model.GameServer;
 import com.authserver.network.packet.AbstractSendablePacket;
 import com.authserver.network.packet.ClientPackets;
-import com.authserver.network.packet.auth2client.AuthOk;
-import com.authserver.network.packet.auth2client.ConnectionAccepted;
-import com.authserver.network.packet.auth2client.GameServerAuthOk;
-import com.authserver.network.packet.auth2client.ServerList;
+import com.authserver.network.packet.auth2client.*;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -129,6 +126,12 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     public void onProtocolVersionReceived(short protocolVersion)
     {
+        if(protocolVersion != 0x01) //TODO move this constant
+        {
+            System.out.println("Invalid protocol");
+            sendPacket(new ConnectionFailed(ConnectionFailed.WRONG_PROTOCOL));
+            closeConnection();
+        }
         this.protocolVersion = protocolVersion;
         Random rnd = new Random();
         sessionId = rnd.nextInt();
@@ -151,6 +154,7 @@ public class ClientListenerThread extends AbstractListenerThread {
             else
             {
                 System.out.println("credentials are invalid");
+                sendPacket(new AuthFailed(AuthFailed.INVALID_CREDENTIALS));
                 closeConnection();
             }
         }

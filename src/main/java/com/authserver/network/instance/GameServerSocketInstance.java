@@ -47,6 +47,7 @@ public class GameServerSocketInstance {
             if(gs.getListenerThread() == listenerThread)
             {
                 gameServerList.remove(gs);
+                break;
             }
         }
     }

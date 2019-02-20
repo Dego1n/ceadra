@@ -2,12 +2,15 @@ package com.authserver.network.thread;
 
 import com.authserver.network.instance.GameServerSocketInstance;
 import com.authserver.network.packet.AbstractSendablePacket;
+import com.authserver.network.packet.auth2game.Ping;
 import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -28,15 +31,19 @@ public class GameServerListenerThread extends AbstractListenerThread{
 
     public void receivableStream()
     {
+        Timer timerPing = new Timer();
+        timerPing.schedule(new GameServerPing(this), 0, 60000);
         try
         {
+
+
             while( _socketChannel.isOpen())
             {
                 // Выделаем память 2 байта в байтбаффер для размера пакета
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
                     // Читаем размер пакета
-                    int bytesRead = _socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS); //TODO: change timeout
+                    int bytesRead = _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES); //TODO: change timeout
 
                     //Конвертим байтбаффер в массив байтов
                     byte[] bytePacketSize = byteBuffer.array();
@@ -48,7 +55,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
                     byteBuffer = ByteBuffer.allocate(size - 2);
 
                     //Читаем пакет
-                    _socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
+                    _socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS);
                 System.out.println(Arrays.toString(byteBuffer.array()));
 
                 //Передаем пакет Хендлеру
@@ -65,7 +72,8 @@ public class GameServerListenerThread extends AbstractListenerThread{
         }
 
         System.out.println( "End of conversation" );
-
+        System.out.println("Stopping ping ");
+        timerPing.cancel();
         GameServerSocketInstance.getInstance().removeGameServerByListenerThread(this);
 
         try
@@ -97,4 +105,21 @@ class GameServerPacketHandler {
         }
     }
 }
+
+class GameServerPing extends TimerTask {
+
+    private GameServerListenerThread _thread;
+
+    public GameServerPing(GameServerListenerThread thread)
+    {
+        _thread = thread;
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Pinging game server");
+        _thread.sendPacket(new Ping());
+    }
+}
+
 

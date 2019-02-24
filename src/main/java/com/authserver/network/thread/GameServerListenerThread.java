@@ -8,9 +8,8 @@ import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
-import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.nio.channels.CompletionHandler;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -22,11 +21,37 @@ public class GameServerListenerThread extends AbstractListenerThread{
     public GameServerListenerThread(AsynchronousSocketChannel socketChanel)
     {
         _socketChannel = socketChanel;
+        packetBuffer = new ArrayList();
     }
+
+    private boolean writeIsPending = false;
+
+    private List<AbstractSendablePacket> packetBuffer;
 
     public void sendPacket(AbstractSendablePacket packet)
     {
-        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()));
+        if(writeIsPending)
+            packetBuffer.add(packet);
+        else {
+            writeIsPending = true;
+        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, GameServerListenerThread>() {
+            @Override
+            public void completed(Integer result, GameServerListenerThread thread) {
+                thread.writeIsPending = false;
+                if(packetBuffer.size() > 0)
+                {
+                    thread.sendPacket(packetBuffer.get(0));
+                }
+            }
+
+            @Override
+            public void failed(Throwable exc, GameServerListenerThread thread) {
+                //TODO: close connection?
+                thread.writeIsPending = false;
+            }
+        });
+        //System.out.println("Sending this: " + Arrays.toString(packet.prepareAndGetData()));
+    }
     }
 
     public void receivableStream()

@@ -1,10 +1,15 @@
 package com.authserver.network.packet;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
 public abstract class AbstractSendablePacket implements IServerPacket {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractSendablePacket.class);
 
     private final ByteArrayOutputStream _bao;
 
@@ -28,11 +33,6 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         _bao.write(value & 0xff);
         _bao.write((value >> 8) & 0xff);
     }
-
-//    protected void writeC(int value)
-//    {
-//        _bao.write(value & 0xff);
-//    }
 
     protected void writeF(double org)
     {
@@ -58,7 +58,7 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         }
         catch (Exception e)
         {
-            System.out.println(getClass().getSimpleName() + ": " + e.getMessage());
+            log.error(e.getMessage());
         }
 
         _bao.write(0);
@@ -73,7 +73,7 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         }
         catch (IOException e)
         {
-            System.out.println(getClass().getSimpleName() + ": " + e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -103,8 +103,6 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         finalPacket.write(packetLength & 0xff);
         finalPacket.write((packetLength >> 8) & 0xff);
         finalPacket.write(_bao.toByteArray(),0,packetLength - 2);
-        System.out.println("Actual packet before size add: "+ Arrays.toString(_bao.toByteArray()));
-        System.out.println("Packet size: "+ packetLength);
 
         packet = finalPacket.toByteArray();
 

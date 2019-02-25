@@ -22,8 +22,6 @@ public class RequestAuth extends AbstractReceivablePacket {
         String username = readS();
         String password = readS();
 
-        System.out.println("Client trying to auth with this data: Session key:"+session_id + " Username: "+username+ " Password" + password);
-
         _clientListenerThread.Auth(session_id,username,password);
     }
 }

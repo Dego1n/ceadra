@@ -16,7 +16,6 @@ public class RequestConnect extends AbstractReceivablePacket {
     @Override
     protected void handle() {
         short protocol_version = readH();
-        System.out.println("Got protocol version: "+protocol_version);
         _clientListenerThread.onProtocolVersionReceived(protocol_version);
     }
 

@@ -2,8 +2,12 @@ package com.authserver.database.presets;
 
 import com.authserver.database.dao.account.AccountDao;
 import com.authserver.database.entity.account.Account;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AccountPresets {
+
+    private static final Logger log = LoggerFactory.getLogger(AccountPresets.class);
 
     public static void Load()
     {
@@ -11,7 +15,7 @@ public class AccountPresets {
 
         if(accountDao.getAccountByUsername("playtest") == null)
         {
-            System.out.println("Creating account playtest");
+            log.info("Creating account playtest");
             Account account = new Account();
             account.setUsername("playtest");
             account.setPassword("awesome");
@@ -20,7 +24,7 @@ public class AccountPresets {
         }
         else
         {
-            System.out.println("Account playtest already exists, skipping");
+            log.info("Account playtest already exists, skipping");
         }
     }
 

@@ -1,8 +1,12 @@
 package com.authserver.network.packet;
 
 import com.authserver.network.thread.AbstractListenerThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractReceivablePacket {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractReceivablePacket.class);
 
     private final AbstractListenerThread _listenerThread;
     private final byte[] packet;
@@ -25,12 +29,6 @@ public abstract class AbstractReceivablePacket {
         result |= (packet[pointer++] << 0x18) & 0xff000000;
         return result;
     }
-
-//    public int readC()
-//    {
-//        int result = packet[pointer++] & 0xff;
-//        return result;
-//    }
 
     protected short readH()
     {
@@ -63,7 +61,7 @@ public abstract class AbstractReceivablePacket {
         }
         catch (Exception e)
         {
-            System.out.println(getClass().getSimpleName() + ": " + e.getMessage());
+            log.error(e.getMessage());
         }
 
         return result;

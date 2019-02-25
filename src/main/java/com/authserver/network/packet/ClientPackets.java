@@ -25,7 +25,6 @@ public class ClientPackets {
                 new RequestAuth(clientListenerThread, packet);
                 break;
             case REQUEST_SERVER_LIST:
-                System.out.println("Client requested server list!");
                 new RequestServerList(clientListenerThread, packet);
                 break;
             case REQUEST_SERVER_LOGIN:

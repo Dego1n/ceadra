@@ -2,6 +2,8 @@ package com.authserver.network;
 
 import com.authserver.config.Config;
 import com.authserver.network.thread.GameServerListenerThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,14 +13,16 @@ import java.nio.channels.CompletionHandler;
 
 public class GameServerListenerSocket {
 
+    private static final Logger log = LoggerFactory.getLogger(GameServerListenerSocket.class);
+
     public GameServerListenerSocket()
     {
         try
         {
-            System.out.println("Listening game servers on "+ Config.AUTH_SOCKET_LISTEN_ADDRESS+":1234");
+            log.info("Listening game servers on {},{}","127.0.0.1",1234);
             // Создаем AsynchronousServerSocketChannel, адрес и порт слушателя достаем из конфига
             final AsynchronousServerSocketChannel listener =
-                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS,1234));
+                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress("127.0.0.1",1234));
 
             // Делаем коллбек на accept
             listener.accept( null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
@@ -28,7 +32,6 @@ public class GameServerListenerSocket {
                 {
                     // Принимаем соединение
                     listener.accept( null, this );
-                    System.out.println("Got gameserver");
                     ///
                     GameServerListenerThread gameServer = new GameServerListenerThread(ch);
                     gameServer.receivableStream();

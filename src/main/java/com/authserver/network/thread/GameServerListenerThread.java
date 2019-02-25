@@ -117,6 +117,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
 }
 class GameServerPacketHandler {
 
+    private static final short REQUEST_REGISTER_GAME_SERVER = 0x01;
     static void handlePacket(GameServerListenerThread authServer, byte [] packet)
     {
         short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
@@ -124,7 +125,7 @@ class GameServerPacketHandler {
 
         switch(packetID)
         {
-            case 0x01:
+            case REQUEST_REGISTER_GAME_SERVER:
                 new RequestRegisterGameServer(authServer,packet);
                 break;
         }

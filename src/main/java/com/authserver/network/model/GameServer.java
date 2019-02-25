@@ -1,8 +1,12 @@
 package com.authserver.network.model;
 
 import com.authserver.network.thread.GameServerListenerThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GameServer {
+
+    private static final Logger log = LoggerFactory.getLogger(GameServer.class);
 
     private final GameServerListenerThread _listenerThread;
     private final String _address;
@@ -15,7 +19,7 @@ public class GameServer {
         _address = address;
         _port = port;
         _name = name;
-        System.out.println("Added new server to server list. Name: "+_name+" Address:"+_address+" Port:"+port);
+        log.info("Added new server to server list. Name: {} Address: {} Port:{}", _name,_address,_port);
     }
 
     public GameServerListenerThread getListenerThread()

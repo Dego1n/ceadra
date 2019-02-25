@@ -11,7 +11,6 @@ class AuthServer {
 
     public static void main( String[] args )
     {
-        System.out.println(Arrays.toString("1_username".getBytes()));
         Config.Load();
         AccountPresets.Load();
         AuthSocketInstance.getInstance();

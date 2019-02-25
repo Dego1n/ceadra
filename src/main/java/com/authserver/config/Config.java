@@ -1,8 +1,12 @@
 package com.authserver.config;
 
 import com.authserver.util.PropertiesParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class Config {
+
+    private static final Logger log = LoggerFactory.getLogger(Config.class);
 
     private static final String configDir = "./config";
 
@@ -21,7 +25,7 @@ public class Config {
 
     public static void Load()
     {
-        System.out.println("Reading configuration files");
+        log.info("Loading configuration files");
 
         PropertiesParser configParser = new PropertiesParser(authSocketProperties);
         AUTH_SOCKET_LISTEN_ADDRESS = configParser.getString("ListenAddress", "127.0.0.1");

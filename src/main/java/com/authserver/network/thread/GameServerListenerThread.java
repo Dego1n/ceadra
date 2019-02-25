@@ -50,7 +50,6 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 thread.writeIsPending = false;
             }
         });
-        //System.out.println("Sending this: " + Arrays.toString(packet.prepareAndGetData()));
     }
     }
 
@@ -68,7 +67,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
                     // Читаем размер пакета
-                    int bytesRead = _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES); //TODO: change timeout
+                    int bytesRead = _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES);
 
                     //Конвертим байтбаффер в массив байтов
                     byte[] bytePacketSize = byteBuffer.array();
@@ -81,7 +80,6 @@ public class GameServerListenerThread extends AbstractListenerThread{
 
                     //Читаем пакет
                     _socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS);
-                System.out.println(Arrays.toString(byteBuffer.array()));
 
                 //Передаем пакет Хендлеру
                 GameServerPacketHandler.handlePacket(this,byteBuffer.array());
@@ -93,11 +91,8 @@ public class GameServerListenerThread extends AbstractListenerThread{
         }
         catch (TimeoutException e)
         {
-            System.out.println( "Connection timed out, closing connection" );
         }
 
-        System.out.println( "End of conversation" );
-        System.out.println("Stopping ping ");
         timerPing.cancel();
         GameServerSocketInstance.getInstance().removeGameServerByListenerThread(this);
 
@@ -120,7 +115,6 @@ class GameServerPacketHandler {
     static void handlePacket(GameServerListenerThread authServer, byte [] packet)
     {
         short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
-        System.out.println("received packet from game server with opcode: "+packetID);
 
         switch(packetID)
         {
@@ -142,7 +136,6 @@ class GameServerPing extends TimerTask {
 
     @Override
     public void run() {
-        System.out.println("Pinging game server");
         _thread.sendPacket(new Ping());
     }
 }

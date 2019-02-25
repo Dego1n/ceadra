@@ -3,6 +3,8 @@ package com.authserver.network;
 import com.authserver.config.Config;
 import com.authserver.network.instance.AuthSocketInstance;
 import com.authserver.network.thread.ClientListenerThread;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -11,12 +13,12 @@ import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 
 public class AuthSocket {
-
+    private static final Logger log = LoggerFactory.getLogger(AuthSocket.class);
     public AuthSocket()
     {
         try
         {
-            System.out.println("Listening clients on "+Config.AUTH_SOCKET_LISTEN_ADDRESS+":"+Config.AUTH_SOCKET_LISTEN_PORT);
+            log.info("Listening clients on {}:{}", Config.AUTH_SOCKET_LISTEN_ADDRESS, Config.AUTH_SOCKET_LISTEN_PORT);
             // Создаем AsynchronousServerSocketChannel, адрес и порт слушателя достаем из конфига
             final AsynchronousServerSocketChannel listener =
                     AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS,Config.AUTH_SOCKET_LISTEN_PORT));
@@ -29,7 +31,6 @@ public class AuthSocket {
                 {
                     // Принимаем соединение
                     listener.accept( null, this );
-                    System.out.println("Got clientListenerThread");
                     ///
 
                     ClientListenerThread clientListenerThread = AuthSocketInstance.getInstance().newClient(ch);
@@ -45,7 +46,7 @@ public class AuthSocket {
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            log.error(e.getMessage());
         }
     }
 }

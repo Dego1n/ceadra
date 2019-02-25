@@ -20,7 +20,6 @@ public class ClientPackets {
                 new RequestAuth(clientListenerThread, packet);
                 break;
             case 0x03:
-                System.out.println("Client requested server list!");
                 new RequestServerList(clientListenerThread, packet);
                 break;
             case 0x04:

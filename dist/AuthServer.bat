@@ -3,6 +3,6 @@ title MMO Auth Server
 
 echo Starting Auth Server
 echo.
-java -Xms64m -Xmx128m -jar libs/authserver-DEVELOPMENT.jar
+java -Xms64m -Xmx128m -cp "libs/authserver-DEVELOPMENT.jar;config/log/" com.authserver.AuthServer
 
 pause

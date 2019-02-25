@@ -15,6 +15,5 @@ public class ConnectionAccepted extends AbstractSendablePacket {
     public void build() {
         writeH(0x01); //PacketID
         writeD(_session_id); //SessionID
-        System.out.println("Sending session key:"+_session_id);
     }
 }

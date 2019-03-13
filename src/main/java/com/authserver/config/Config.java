@@ -4,17 +4,20 @@ import com.authserver.util.PropertiesParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public class Config {
 
     private static final Logger log = LoggerFactory.getLogger(Config.class);
 
     private static final String configDir = "./config";
 
-    private static final String authSocketProperties = configDir + "/network/authsocket.ini";
+    private static String authSocketProperties = configDir + "/network/authsocket.ini";
     public static String AUTH_SOCKET_LISTEN_ADDRESS;
     public static short AUTH_SOCKET_LISTEN_PORT;
 
-    private static final String databaseProperties = configDir + "/database/database.ini";
+    private static String databaseProperties = configDir + "/database/database.ini";
     public static String DATABASE_DRIVER;
     public static String DATABASE_DIALECT;
     public static String DATABASE_URL;
@@ -27,8 +30,16 @@ public class Config {
     {
         log.info("Loading configuration files");
 
+        //Если запускаем из IDE
+        if(Files.isDirectory(Paths.get("./dist/config")))
+        {
+            log.info("Seems like auth server is running from IDE. Using path: ./dist/config");
+            authSocketProperties = "./dist/config/network/authsocket.ini";
+            databaseProperties = "./dist/config/database/database.ini";
+        }
+
         PropertiesParser configParser = new PropertiesParser(authSocketProperties);
-        AUTH_SOCKET_LISTEN_ADDRESS = configParser.getString("ListenAddress", "127.0.0.1");
+        AUTH_SOCKET_LISTEN_ADDRESS = configParser.getString("ListenAddress", "192.168.1.83");
         AUTH_SOCKET_LISTEN_PORT = configParser.getShort("ListenPort", (short)4784);
 
         configParser = new PropertiesParser(databaseProperties);

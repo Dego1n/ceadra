@@ -20,24 +20,18 @@ public class GameServerSocketInstance {
         return _instance;
     }
 
-    private final GameServerListenerSocket listenerSocket;
     private List<GameServer> gameServerList;
 
     private GameServerSocketInstance()
     {
         gameServerList = new ArrayList<>();
-        listenerSocket = new GameServerListenerSocket();
+        new GameServerListenerSocket();
     }
 
     public void addGameServer(GameServer server)
     {
         gameServerList.add(server);
         server.getListenerThread().sendPacket(new ConnectionAccepted());
-    }
-
-    public void removeGameServer(GameServer server)
-    {
-        gameServerList.remove(server);
     }
 
     public void removeGameServerByListenerThread(GameServerListenerThread listenerThread)

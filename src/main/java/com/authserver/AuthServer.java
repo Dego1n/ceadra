@@ -5,8 +5,6 @@ import com.authserver.database.presets.AccountPresets;
 import com.authserver.network.instance.AuthSocketInstance;
 import com.authserver.network.instance.GameServerSocketInstance;
 
-import java.util.Arrays;
-
 class AuthServer {
 
     public static void main( String[] args )

@@ -39,7 +39,7 @@ public class Config {
         }
 
         PropertiesParser configParser = new PropertiesParser(authSocketProperties);
-        AUTH_SOCKET_LISTEN_ADDRESS = configParser.getString("ListenAddress", "192.168.1.83");
+        AUTH_SOCKET_LISTEN_ADDRESS = configParser.getString("ListenAddress", "127.0.0.1");
         AUTH_SOCKET_LISTEN_PORT = configParser.getShort("ListenPort", (short)4784);
 
         configParser = new PropertiesParser(databaseProperties);

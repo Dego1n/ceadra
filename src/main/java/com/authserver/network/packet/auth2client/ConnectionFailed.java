@@ -7,7 +7,7 @@ public class ConnectionFailed extends AbstractSendablePacket implements IServerP
 
     public static final short WRONG_PROTOCOL = 0x00;
 
-    short reason;
+    private short reason;
 
     public ConnectionFailed(short reason)
     {

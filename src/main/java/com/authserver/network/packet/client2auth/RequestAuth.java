@@ -12,11 +12,10 @@ public class RequestAuth extends AbstractReceivablePacket {
     {
         super(clientListenerThread, packet);
         _clientListenerThread = clientListenerThread;
-        handle(); //TODO: может вызывается само из абстрактного класса? нужно закомментировать и проверить
+        handle();
     }
 
-    @Override
-    protected void handle() {
+    private void handle() {
 
         int session_id = readD();
         String username = readS();

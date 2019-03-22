@@ -13,7 +13,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ExecutionException;
@@ -22,8 +21,6 @@ import java.util.concurrent.TimeoutException;
 
 public class ClientListenerThread extends AbstractListenerThread {
     private final AsynchronousSocketChannel _socketChannel;
-
-    private short protocolVersion;
 
     private int sessionId;
 
@@ -78,7 +75,7 @@ public class ClientListenerThread extends AbstractListenerThread {
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
                 // Читаем размер пакета
-                int bytesRead = _socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
+                _socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
 
                 //Конвертим байтбаффер в массив байтов
                 byte[] bytePacketSize =  byteBuffer.array();
@@ -99,7 +96,8 @@ public class ClientListenerThread extends AbstractListenerThread {
         catch (InterruptedException | ExecutionException e)
         {
             e.printStackTrace();
-        } catch (TimeoutException e)
+        }
+        catch (TimeoutException e)
         {
 
         }
@@ -120,12 +118,12 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     public void onProtocolVersionReceived(short protocolVersion)
     {
-        if(protocolVersion != 0x01) //TODO move this constant
+        if(protocolVersion != 0x02) //TODO move this constant
         {
             sendPacket(new ConnectionFailed(ConnectionFailed.WRONG_PROTOCOL));
             closeConnection();
         }
-        this.protocolVersion = protocolVersion;
+        short protocolVersion1 = protocolVersion;
         Random rnd = new Random();
         sessionId = rnd.nextInt();
         sendPacket(new ConnectionAccepted(sessionId));
@@ -171,7 +169,7 @@ public class ClientListenerThread extends AbstractListenerThread {
         }
     }
 
-    public void closeConnection()
+    private void closeConnection()
     {
         try {
             _socketChannel.close();
@@ -181,7 +179,7 @@ public class ClientListenerThread extends AbstractListenerThread {
     }
 
     public void ServerLogin(int session_key, int server_id) {
-        if(this.sessionId == sessionId)
+        if(this.sessionId == session_key)
         {
             _gameServer = GameServerSocketInstance.getInstance().getGameServerList().get(server_id);
             if(_gameServer == null)

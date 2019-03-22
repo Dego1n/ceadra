@@ -67,7 +67,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
                     // Читаем размер пакета
-                    int bytesRead = _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES);
+                    _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES);
 
                     //Конвертим байтбаффер в массив байтов
                     byte[] bytePacketSize = byteBuffer.array();
@@ -85,12 +85,9 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 GameServerPacketHandler.handlePacket(this,byteBuffer.array());
             }
         }
-        catch (InterruptedException | ExecutionException e)
+        catch (InterruptedException | ExecutionException | TimeoutException e)
         {
 
-        }
-        catch (TimeoutException e)
-        {
         }
 
         timerPing.cancel();

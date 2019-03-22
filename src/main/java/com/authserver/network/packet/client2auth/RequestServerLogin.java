@@ -11,11 +11,10 @@ public class RequestServerLogin extends AbstractReceivablePacket {
     {
         super(clientListenerThread, packet);
         _clientListenerThread = clientListenerThread;
-        handle(); //TODO: может вызывается само из абстрактного класса? нужно закомментировать и проверить
+        handle();
     }
 
-    @Override
-    protected void handle() {
+    private void handle() {
         int session_key = readD();
         int server_id = readD();
         _clientListenerThread.ServerLogin(session_key,server_id);

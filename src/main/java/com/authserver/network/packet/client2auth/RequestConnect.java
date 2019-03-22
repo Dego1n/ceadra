@@ -10,11 +10,10 @@ public class RequestConnect extends AbstractReceivablePacket {
     {
         super(clientListenerThread, packet);
         _clientListenerThread = clientListenerThread;
-        handle(); //TODO: может вызывается само из абстрактного класса? нужно закомментировать и проверить
+        handle();
     }
 
-    @Override
-    protected void handle() {
+    private void handle() {
         short protocol_version = readH();
         _clientListenerThread.onProtocolVersionReceived(protocol_version);
     }

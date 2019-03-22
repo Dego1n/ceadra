@@ -14,8 +14,7 @@ public class RequestRegisterGameServer extends AbstractReceivablePacket {
         handle();
     }
 
-    @Override
-    protected void handle() {
+    private void handle() {
 
         int server_key = readD();
         String address = readS();

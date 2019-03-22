@@ -23,7 +23,7 @@ public class AuthSocketInstance {
 
     private AuthSocketInstance()
     {
-        AuthSocket _socket = new AuthSocket();
+        new AuthSocket();
         _clientListenerThreads = new ArrayList<>();
     }
 

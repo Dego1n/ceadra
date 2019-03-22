@@ -19,8 +19,6 @@ public abstract class AbstractReceivablePacket {
         this.pointer = 2; //skipping packet id
     }
 
-    protected abstract void handle();
-    
     protected int readD()
     {
         int result = packet[pointer++] & 0xff;
@@ -64,14 +62,6 @@ public abstract class AbstractReceivablePacket {
             log.error(e.getMessage());
         }
 
-        return result;
-    }
-
-    public final byte[] readB(int length)
-    {
-        byte[] result = new byte[length];
-        System.arraycopy(packet, pointer, result, 0, length);
-        pointer += length;
         return result;
     }
 

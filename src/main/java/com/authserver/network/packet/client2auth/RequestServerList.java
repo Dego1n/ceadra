@@ -13,8 +13,7 @@ public class RequestServerList extends AbstractReceivablePacket {
         handle();
     }
 
-    @Override
-    protected void handle() {
+    private void handle() {
         int session_key = readD();
         _clientListenerThread.SendServerList(session_key);
     }

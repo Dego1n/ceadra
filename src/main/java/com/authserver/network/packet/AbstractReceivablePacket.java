@@ -4,6 +4,8 @@ import com.authserver.network.thread.AbstractListenerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 public abstract class AbstractReceivablePacket {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractReceivablePacket.class);
@@ -53,15 +55,23 @@ public abstract class AbstractReceivablePacket {
         String result = null;
         try
         {
-            result = new String(packet, pointer, packet.length - pointer);
-            result = result.substring(0, result.indexOf(0x00));
-            pointer += (result.length()) + 2;
+            int size = 0;
+            for(int i = pointer; i < pointer + (packet.length - pointer); i++)
+            {
+                if(packet[i] == 0x00 && packet[i + 1] == 0x00)
+                {
+                    break;
+                }
+                size++;
+            }
+            result = new String(packet, pointer, size);
+            pointer += size + 2;
         }
         catch (Exception e)
         {
             log.error(e.getMessage());
         }
-
+        System.out.println(result);
         return result;
     }
 

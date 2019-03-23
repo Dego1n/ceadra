@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 
 public abstract class AbstractSendablePacket implements IServerPacket {
 
@@ -49,7 +50,7 @@ public abstract class AbstractSendablePacket implements IServerPacket {
         {
             if (text != null)
             {
-                _bao.write(text.getBytes());
+                _bao.write(text.getBytes(StandardCharsets.UTF_8));
             }
         }
         catch (Exception e)

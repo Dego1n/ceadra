@@ -28,14 +28,12 @@ public class Config {
 
     public static void Load()
     {
-        log.info("Loading configuration files");
-
         //Если запускаем из IDE
-        if(Files.isDirectory(Paths.get("./dist/config")))
+        if(Files.isDirectory(Paths.get("./dist/config")) || Files.isDirectory(Paths.get("./authserver")))
         {
-            log.info("Seems like auth server is running from IDE. Using path: ./dist/config");
-            authSocketProperties = "./dist/config/network/authsocket.ini";
-            databaseProperties = "./dist/config/database/database.ini";
+            log.info("Seems like auth server is running from IDE. Fixing config directories");
+            authSocketProperties = "./authserver/dist/config/network/authsocket.ini";
+            databaseProperties = "./authserver/dist/config/database/database.ini";
         }
 
         PropertiesParser configParser = new PropertiesParser(authSocketProperties);

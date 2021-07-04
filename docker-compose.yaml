@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  auth_jdk_vm:
+    build:
+      context: ".docker"
+      dockerfile: jvm/Dockerfile
+    ports:
+      - '5005:5005' # Intellij Idea debug
+      - '4784:4784' # Clients
+    environment:
+      DATABASE_URL: "jdbc:postgresql://db:5432/postgres?useSSL=false"
+      DATABASE_PASSWORD: "auth_db_pass"
+      DATABASE_USER: "auth_user"
+      LISTEN_CLIENTS_ADDR: "0.0.0.0"
+    volumes:
+      - './:/jvm'
+    networks:
+      - proxy-auth-net
+      - local-auth-net
+    command: gradle -DDEBUG=true run
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: "auth_db_pass"
+      POSTGRES_USER: "auth_user"
+    networks:
+      - local-auth-net
+
+networks:
+  proxy-auth-net:
+    name: game-backend-local-network
+  local-auth-net:
+    name: auth-backend-netowrk

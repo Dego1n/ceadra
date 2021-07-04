@@ -25,7 +25,8 @@ public class ServerList extends AbstractSendablePacket implements IServerPacket 
         {
             writeH(server_id);
             writeS(server.getName());
-            writeS(server.getAddress());
+//            writeS(server.getAddress()); //TODO:
+            writeS("127.0.0.1");
             writeD(server.getPort());
             writeH(0x00); //TODO: Server status
             server_id++;

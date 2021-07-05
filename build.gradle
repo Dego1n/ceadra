@@ -1,21 +1,43 @@
 plugins {
-    id 'java'
+    id "application"
+    id "org.sonarqube" version "3.3"
 }
 
 group 'com.mmo.authserver'
 version 'DEVELOPMENT'
 
+apply plugin: 'java'
+application {
+    mainClassName 'com.authserver.AuthServer'
+}
+test {
+    useJUnitPlatform()
+}
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectKey", "eleanarium_ceadra"
+        property "sonar.projectName", "Ceadra"
+    }
+}
+
+tasks.withType(JavaExec) {
+    if (System.getProperty('DEBUG', 'false') == 'true') {
+        jvmArgs '-Xdebug', '-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005'
+    }
+}
+
 dependencies {
     compile files("dist/config/log") // Чтобы IDE подхватило конфиг LogBack'a
 
-    testCompile group: 'junit', name: 'junit', version: '4.13.2' //Может нахуй не надо?
-    compile group: 'postgresql', name: 'postgresql', version: '9.1-901-1.jdbc4' //PostgreSQL Driver
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4' //PostgreSQL Driver
     //implementation 'org.hibernate:hibernate-core:5.4.1.Final' //Hibernate 5.4.1
     compile group: 'org.hibernate', name: 'hibernate-core', version: '5.4.32.Final' //Hibernate 5.4.1
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.2.3'

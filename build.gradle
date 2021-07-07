@@ -35,7 +35,7 @@ tasks.withType(JavaExec) {
 dependencies {
     compile files("dist/config/log") // Чтобы IDE подхватило конфиг LogBack'a
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.2'
     compile group: 'postgresql', name: 'postgresql', version: '9.0-801.jdbc4' //PostgreSQL Driver
     //implementation 'org.hibernate:hibernate-core:5.4.1.Final' //Hibernate 5.4.1

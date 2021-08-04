@@ -4,21 +4,17 @@ import com.authserver.util.PropertiesParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Optional;
-
 public class Config {
 
     private static final Logger log = LoggerFactory.getLogger(Config.class);
 
-    private static final String configDir = "./dist/config";
+    private static final String CONFIG_DIR = "./dist/config";
 
-    private static String authSocketProperties = configDir + "/network/authsocket.ini";
+    private static String authSocketProperties = CONFIG_DIR + "/network/authsocket.ini";
     public static String AUTH_SOCKET_LISTEN_ADDRESS;
     public static short AUTH_SOCKET_LISTEN_PORT;
 
-    private static String databaseProperties = configDir + "/database/database.ini";
+    private static String databaseProperties = CONFIG_DIR + "/database/database.ini";
     public static String DATABASE_DRIVER;
     public static String DATABASE_DIALECT;
     public static String DATABASE_URL;
@@ -27,8 +23,13 @@ public class Config {
     public static String DATABASE_SHOW_SQL;
     public static String DATABASE_HBM2DLL;
 
+    private Config() {
+
+    }
+
     public static void Load()
     {
+        log.info("Parsing config files");
         //Если запускаем из IDE
 //        if(Files.isDirectory(Paths.get("./dist/config")) || Files.isDirectory(Paths.get("./authserver")))
 //        {

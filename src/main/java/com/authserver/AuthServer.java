@@ -4,8 +4,11 @@ import com.authserver.config.Config;
 import com.authserver.database.presets.AccountPresets;
 import com.authserver.network.instance.AuthSocketInstance;
 import com.authserver.network.instance.GameServerSocketInstance;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class AuthServer {
+    private static final Logger log = LoggerFactory.getLogger(AuthServer.class);
 
     public static void main( String[] args )
     {
@@ -19,7 +22,8 @@ class AuthServer {
         }
         catch( Exception e )
         {
-            e.printStackTrace();
+            log.error("",e);
+            Thread.currentThread().interrupt();
         }
     }
 }

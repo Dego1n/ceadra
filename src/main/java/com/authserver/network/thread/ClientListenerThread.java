@@ -7,11 +7,14 @@ import com.authserver.network.model.GameServer;
 import com.authserver.network.packet.AbstractSendablePacket;
 import com.authserver.network.packet.ClientPackets;
 import com.authserver.network.packet.auth2client.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousSocketChannel;
 import java.nio.channels.CompletionHandler;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -20,6 +23,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class ClientListenerThread extends AbstractListenerThread {
+
+    private static final Logger log = LoggerFactory.getLogger(ClientListenerThread.class);
+
     private final AsynchronousSocketChannel _socketChannel;
 
     private int sessionId;
@@ -34,10 +40,13 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     private List<AbstractSendablePacket> packetBuffer;
 
+    private SecureRandom random;
+
     public ClientListenerThread(AsynchronousSocketChannel socketChannel)
     {
         _socketChannel = socketChannel;
         packetBuffer = new ArrayList();
+        random = new SecureRandom();
     }
 
     public void sendPacket(AbstractSendablePacket packet)
@@ -95,11 +104,11 @@ public class ClientListenerThread extends AbstractListenerThread {
         }
         catch (InterruptedException | ExecutionException e)
         {
-            e.printStackTrace();
+            log.error("ReceivableStream", e);
         }
         catch (TimeoutException e)
         {
-
+            log.warn("ReceivableStream (Timeout)", e);
         }
 
         try
@@ -110,9 +119,9 @@ public class ClientListenerThread extends AbstractListenerThread {
                 _socketChannel.close();
             }
         }
-        catch (IOException e1)
+        catch (IOException e)
         {
-            e1.printStackTrace();
+            log.warn("Failed to close connection on receivable stream", e);
         }
     }
 
@@ -124,8 +133,7 @@ public class ClientListenerThread extends AbstractListenerThread {
             closeConnection();
         }
         short protocolVersion1 = protocolVersion;
-        Random rnd = new Random();
-        sessionId = rnd.nextInt();
+        sessionId = random.nextInt();
         sendPacket(new ConnectionAccepted(sessionId));
     }
 
@@ -174,7 +182,7 @@ public class ClientListenerThread extends AbstractListenerThread {
         try {
             _socketChannel.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("Failed closing connection", e);
         }
     }
 
@@ -188,8 +196,7 @@ public class ClientListenerThread extends AbstractListenerThread {
                 closeConnection();
             }
 
-            Random rnd = new Random();
-            _gameSessionKey = rnd.nextInt();
+            _gameSessionKey = random.nextInt();
             sendPacket(new GameServerAuthOk(_gameSessionKey));
         }
         else

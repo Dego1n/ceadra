@@ -4,6 +4,8 @@ import com.authserver.network.instance.GameServerSocketInstance;
 import com.authserver.network.packet.AbstractSendablePacket;
 import com.authserver.network.packet.auth2game.Ping;
 import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -15,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 public class GameServerListenerThread extends AbstractListenerThread{
+
+    private static final Logger log = LoggerFactory.getLogger(GameServerListenerThread.class);
 
     private final AsynchronousSocketChannel _socketChannel;
 
@@ -101,9 +105,9 @@ public class GameServerListenerThread extends AbstractListenerThread{
                 _socketChannel.close();
             }
         }
-        catch (IOException e1)
+        catch (IOException e)
         {
-            e1.printStackTrace();
+            log.error("Failed to close connection in game server listener thread", e);
         }
     }
 }

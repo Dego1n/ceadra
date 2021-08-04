@@ -47,7 +47,7 @@ public class GameServerListenerSocket {
         }
         catch (IOException e)
         {
-            e.printStackTrace();
+            log.error(GameServerListenerSocket.class.toString(), e);
         }
     }
 }

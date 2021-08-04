@@ -20,7 +20,7 @@ public class ClientPackets {
 
     }
 
-    public static void HandlePacket(ClientListenerThread clientListenerThread, byte[] packet) {
+    public static void handlePacket(ClientListenerThread clientListenerThread, byte[] packet) {
         short packetID = (short) (((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
         switch (packetID) {
             case REQUEST_CONNECT:

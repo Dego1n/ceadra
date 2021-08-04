@@ -92,7 +92,7 @@ public class ClientListenerThread extends AbstractListenerThread {
                 socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
 
                 // Passing packet to handler
-                ClientPackets.HandlePacket(this,byteBuffer.array());
+                ClientPackets.handlePacket(this,byteBuffer.array());
             }
         }
         catch (InterruptedException | ExecutionException e)
@@ -127,7 +127,6 @@ public class ClientListenerThread extends AbstractListenerThread {
             sendPacket(new ConnectionFailed(ConnectionFailed.WRONG_PROTOCOL));
             closeConnection();
         }
-        short protocolVersion1 = protocolVersion;
         sessionId = random.nextInt();
         sendPacket(new ConnectionAccepted(sessionId));
     }

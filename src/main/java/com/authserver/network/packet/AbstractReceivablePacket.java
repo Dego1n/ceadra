@@ -35,7 +35,7 @@ public abstract class AbstractReceivablePacket {
         return (short)result;
     }
 
-    public double readF()
+    protected double readF()
     {
         long result = packet[pointer++] & 0xff;
         result |= (packet[pointer++] & 0xffL) << 8L;
@@ -72,7 +72,7 @@ public abstract class AbstractReceivablePacket {
         return result;
     }
 
-    public long readQ()
+    protected long readQ()
     {
         long result = packet[pointer++] & 0xff;
         result |= (packet[pointer++] & 0xffL) << 8L;
@@ -83,5 +83,9 @@ public abstract class AbstractReceivablePacket {
         result |= (packet[pointer++] & 0xffL) << 48L;
         result |= (packet[pointer++] & 0xffL) << 56L;
         return result;
+    }
+
+    protected boolean hasMoreData() {
+        return this.pointer != packet.length;
     }
 }

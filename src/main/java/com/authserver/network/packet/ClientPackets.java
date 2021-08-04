@@ -16,6 +16,10 @@ public class ClientPackets {
     private final static short REQUEST_SERVER_LIST = 0x03;
     private final static short REQUEST_SERVER_LOGIN = 0x04;
 
+    private ClientPackets() {
+
+    }
+
     public static void HandlePacket(ClientListenerThread clientListenerThread, byte [] packet)
     {
         short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
@@ -35,7 +39,7 @@ public class ClientPackets {
                 break;
             default:
                 //TODO: Security audit ?
-                log.warn("Client sending unknown packet id: "+packetID);
+                log.warn("Client sending unknown packet id: {} ",packetID);
                 break;
         }
     }

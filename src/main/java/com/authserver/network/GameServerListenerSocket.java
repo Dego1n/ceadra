@@ -16,27 +16,20 @@ public class GameServerListenerSocket {
 
     public GameServerListenerSocket()
     {
-        try
+        try (            final AsynchronousServerSocketChannel listener =
+                                 AsynchronousServerSocketChannel.open().bind(new InetSocketAddress("0.0.0.0",1234)))
         {
             log.info("Listening game servers on {}:{}","0.0.0.0",1234);
-            // Создаем AsynchronousServerSocketChannel, адрес и порт слушателя достаем из конфига (нет)
-            final AsynchronousServerSocketChannel listener =
-                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress("0.0.0.0",1234));
-
-            // Делаем коллбек на accept
+            // Callback for accept
             listener.accept( null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
 
                 @Override
                 public void completed(AsynchronousSocketChannel ch, Void att)
                 {
-                    // Принимаем соединение
+                    // Accepting connection
                     listener.accept( null, this );
-                    ///
                     GameServerListenerThread gameServer = new GameServerListenerThread(ch);
                     gameServer.receivableStream();
-                    //ClientListenerThread client = AuthSocketInstance.getInstance().newClient(ch);
-                    //client.receivableStream();
-
                 }
 
                 @Override

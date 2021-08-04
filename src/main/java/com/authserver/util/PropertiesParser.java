@@ -52,7 +52,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -76,7 +76,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -96,7 +96,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -116,7 +116,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -136,7 +136,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -156,7 +156,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -176,7 +176,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, String.valueOf(defaultValue));
             return defaultValue;
         }
 
@@ -196,7 +196,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, defaultValue);
             return defaultValue;
         }
         return value;
@@ -207,7 +207,7 @@ public final class PropertiesParser
         String value = getValue(key);
         if (value == null)
         {
-            log.warn("[" + _file.getName() + "] missing property for key: " + key + " using default value: " + defaultValue);
+            logMissingPropertyKey(key, defaultValue.toString());
             return defaultValue;
         }
 
@@ -220,5 +220,9 @@ public final class PropertiesParser
             log.warn("[" + _file.getName() + "] Invalid value specified for key: " + key + " specified value: " + value + " should be enum value of \"" + clazz.getSimpleName() + "\" using default value: " + defaultValue);
             return defaultValue;
         }
+    }
+
+    private void logMissingPropertyKey(String key, String defaultValue) {
+        log.warn("[{}] missing property for key: {} using default value: {}", _file.getName(), key, defaultValue);
     }
 }

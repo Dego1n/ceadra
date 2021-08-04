@@ -45,7 +45,7 @@ public class ClientListenerThread extends AbstractListenerThread {
     public ClientListenerThread(AsynchronousSocketChannel socketChannel)
     {
         _socketChannel = socketChannel;
-        packetBuffer = new ArrayList();
+        packetBuffer = new ArrayList<>();
         random = new SecureRandom();
     }
 
@@ -105,10 +105,12 @@ public class ClientListenerThread extends AbstractListenerThread {
         catch (InterruptedException | ExecutionException e)
         {
             log.error("ReceivableStream", e);
+            Thread.currentThread().interrupt();
         }
         catch (TimeoutException e)
         {
             log.warn("ReceivableStream (Timeout)", e);
+            Thread.currentThread().interrupt();
         }
 
         try

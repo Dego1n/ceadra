@@ -25,7 +25,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
     public GameServerListenerThread(AsynchronousSocketChannel socketChanel)
     {
         _socketChannel = socketChanel;
-        packetBuffer = new ArrayList();
+        packetBuffer = new ArrayList<>();
     }
 
     private boolean writeIsPending = false;
@@ -91,7 +91,8 @@ public class GameServerListenerThread extends AbstractListenerThread{
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-
+            log.error("", e);
+            Thread.currentThread().interrupt();
         }
 
         timerPing.cancel();
@@ -112,8 +113,12 @@ public class GameServerListenerThread extends AbstractListenerThread{
     }
 }
 class GameServerPacketHandler {
+    private static final Logger log = LoggerFactory.getLogger(GameServerListenerThread.class);
 
     private static final short REQUEST_REGISTER_GAME_SERVER = 0x01;
+    private GameServerPacketHandler() {
+
+    }
     static void handlePacket(GameServerListenerThread authServer, byte [] packet)
     {
         short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
@@ -122,6 +127,9 @@ class GameServerPacketHandler {
         {
             case REQUEST_REGISTER_GAME_SERVER:
                 new RequestRegisterGameServer(authServer,packet);
+                break;
+            default:
+                log.warn("Received unknown packet ID: {}", packetID);
                 break;
         }
     }

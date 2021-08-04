@@ -30,13 +30,6 @@ public class Config {
     public static void Load()
     {
         log.info("Parsing config files");
-        //Если запускаем из IDE
-//        if(Files.isDirectory(Paths.get("./dist/config")) || Files.isDirectory(Paths.get("./authserver")))
-//        {
-//            log.info("Seems like auth server is running from IDE. Fixing config directories");
-//            authSocketProperties = "./authserver/dist/config/network/authsocket.ini";
-//            databaseProperties = "./authserver/dist/config/database/database.ini";
-//        }
         PropertiesParser configParser = new PropertiesParser(authSocketProperties);
         AUTH_SOCKET_LISTEN_ADDRESS = System.getenv("LISTEN_CLIENTS_ADDR") != null ? System.getenv("LISTEN_CLIENTS_ADDR") : configParser.getString("ListenAddress", "127.0.0.1");
         AUTH_SOCKET_LISTEN_PORT = configParser.getShort("ListenPort", (short)4784);
@@ -49,7 +42,5 @@ public class Config {
         DATABASE_PASSWORD = System.getenv("DATABASE_PASSWORD") != null ? System.getenv("DATABASE_PASSWORD") : configParser.getString("DatabasePassword","root");
         DATABASE_SHOW_SQL = configParser.getString("DatabaseShowSql","true");
         DATABASE_HBM2DLL = configParser.getString("DatabaseHBM2DLL","update");
-        System.out.println(DATABASE_URL);
-        System.out.println(System.getenv("DATABASE_URL"));
     }
 }

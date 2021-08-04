@@ -71,7 +71,6 @@ public abstract class AbstractReceivablePacket {
         {
             log.error(e.getMessage());
         }
-        System.out.println(result);
         return result;
     }
 

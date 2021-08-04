@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class ServerListPacketTest {
 
     @Test
-    void testConnectionFailedPacket() {
+    void testServerListPacket() {
         List<GameServer> gameServerList = new ArrayList<>();
         gameServerList.add(
                 new GameServer(

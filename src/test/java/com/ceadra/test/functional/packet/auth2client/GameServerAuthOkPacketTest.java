@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class GameServerAuthOkPacketTest {
 
     @Test
-    void testConnectionFailedPacket() {
+    void testGameServerAuthOkPacket() {
         SecureRandom random = new SecureRandom();
         int gameSessionId = random.nextInt();
         AbstractSendablePacket packet = new GameServerAuthOk(gameSessionId);

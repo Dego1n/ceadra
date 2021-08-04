@@ -4,18 +4,18 @@ import com.authserver.network.packet.AbstractSendablePacket;
 
 public class GameServerAuthOk extends AbstractSendablePacket {
 
-    private int _gameSessionKey;
+    private int gameSessionKey;
 
-    public GameServerAuthOk(int _gameSessionKey)
+    public GameServerAuthOk(int gameSessionKey)
     {
         super();
-        this._gameSessionKey = _gameSessionKey;
+        this.gameSessionKey = gameSessionKey;
         build();
     }
 
     @Override
     public void build() {
         writeH(0x06); //packetID
-        writeD(_gameSessionKey);
+        writeD(gameSessionKey);
     }
 }

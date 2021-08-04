@@ -10,14 +10,14 @@ import java.util.List;
 
 public class GameServerSocketInstance {
 
-    private static GameServerSocketInstance _instance;
+    private static GameServerSocketInstance instance;
 
     public static GameServerSocketInstance getInstance()
     {
-        if(_instance == null)
-            _instance = new GameServerSocketInstance();
+        if(instance == null)
+            instance = new GameServerSocketInstance();
 
-        return _instance;
+        return instance;
     }
 
     private List<GameServer> gameServerList;

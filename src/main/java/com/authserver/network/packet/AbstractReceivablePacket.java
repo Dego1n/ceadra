@@ -4,19 +4,17 @@ import com.authserver.network.thread.AbstractListenerThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-
 public abstract class AbstractReceivablePacket {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractReceivablePacket.class);
 
-    private final AbstractListenerThread _listenerThread;
+    private final AbstractListenerThread listenerthread;
     private final byte[] packet;
     private int pointer;
 
     protected AbstractReceivablePacket(AbstractListenerThread listenerThread, byte[] packet)
     {
-        _listenerThread = listenerThread;
+        listenerthread = listenerThread;
         this.packet = packet;
         this.pointer = 2; //skipping packet id
     }

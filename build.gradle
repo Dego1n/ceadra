@@ -23,6 +23,7 @@ sonarqube {
     properties {
         property "sonar.projectKey", "eleanarium_ceadra"
         property "sonar.projectName", "Ceadra"
+        property "sonar.exclusions", "src/main/java/com/authserver/util/PropertiesParser.java"
     }
 }
 

@@ -13,7 +13,7 @@ public class AccountPresets {
 
     }
 
-    public static void Load()
+    public static void load()
     {
         AccountDao accountDao = new AccountDao();
 

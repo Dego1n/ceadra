@@ -7,21 +7,21 @@ import com.authserver.network.thread.GameServerListenerThread;
 
 public class RequestRegisterGameServer extends AbstractReceivablePacket {
 
-    private final GameServerListenerThread _gameServerListenerThread;
+    private final GameServerListenerThread gameServerListenerThread;
     public RequestRegisterGameServer(GameServerListenerThread listenerThread, byte[] packet) {
         super(listenerThread, packet);
-        _gameServerListenerThread = listenerThread;
+        gameServerListenerThread = listenerThread;
         handle();
     }
 
     private void handle() {
 
-        int server_key = readD();
+        int serverKey = readD();
         String address = readS();
         short port = readH();
-        String server_name = readS();
+        String serverName = readS();
 
         //TODO: Check server key
-        GameServerSocketInstance.getInstance().addGameServer(new GameServer(_gameServerListenerThread, address,port,server_name));
+        GameServerSocketInstance.getInstance().addGameServer(new GameServer(gameServerListenerThread, address, port, serverName));
     }
 }

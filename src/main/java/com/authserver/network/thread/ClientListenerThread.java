@@ -17,7 +17,6 @@ import java.nio.channels.CompletionHandler;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -26,25 +25,19 @@ public class ClientListenerThread extends AbstractListenerThread {
 
     private static final Logger log = LoggerFactory.getLogger(ClientListenerThread.class);
 
-    private final AsynchronousSocketChannel _socketChannel;
+    private final AsynchronousSocketChannel socketChannel;
 
     private int sessionId;
-
-    private Account _account;
-
-    private GameServer _gameServer;
-
-    private int _gameSessionKey;
 
     private boolean writeIsPending = false;
 
     private List<AbstractSendablePacket> packetBuffer;
 
-    private SecureRandom random;
+    private final SecureRandom random;
 
     public ClientListenerThread(AsynchronousSocketChannel socketChannel)
     {
-        _socketChannel = socketChannel;
+        this.socketChannel = socketChannel;
         packetBuffer = new ArrayList<>();
         random = new SecureRandom();
     }
@@ -55,11 +48,11 @@ public class ClientListenerThread extends AbstractListenerThread {
             packetBuffer.add(packet);
         else {
             writeIsPending = true;
-            _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, ClientListenerThread>() {
+            socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, ClientListenerThread>() {
                 @Override
                 public void completed(Integer result, ClientListenerThread thread) {
                     thread.writeIsPending = false;
-                    if(packetBuffer.size() > 0)
+                    if(!packetBuffer.isEmpty())
                     {
                         thread.sendPacket(packetBuffer.get(0));
                     }
@@ -78,27 +71,27 @@ public class ClientListenerThread extends AbstractListenerThread {
     {
         try
         {
-            while( _socketChannel.isOpen())
+            while( socketChannel.isOpen())
             {
-                // Выделаем память 2 байта в байтбаффер для размера пакета
+                // Allocating 2 bytes into bytebuffer for Packet Size
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
-                // Читаем размер пакета
-                _socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
+                // Reading packet size
+                socketChannel.read( byteBuffer ).get( 3, TimeUnit.MINUTES );
 
-                //Конвертим байтбаффер в массив байтов
+                // Converting bytebuffer into byte array
                 byte[] bytePacketSize =  byteBuffer.array();
 
-                //Конвертим массив байтов в шорт и получаем длинну пакета
+                // Converting byte array into short and getting size of the packet
                 short size = (short)(((bytePacketSize[1] & 0xFF) << 8) | (bytePacketSize[0] & 0xFF));
 
-                //Выделяем память под пакет нужного размера - 2 байта (размер мы уже получили)
+                // Allocating memory based on packet size without 2 bytes (it was packet size and we already got it)
                 byteBuffer = ByteBuffer.allocate(size - 2);
 
-                //Читаем пакет
-                _socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
+                // Reading the packet
+                socketChannel.read(byteBuffer).get(20, TimeUnit.SECONDS);
 
-                //Передаем пакет Хендлеру
+                // Passing packet to handler
                 ClientPackets.HandlePacket(this,byteBuffer.array());
             }
         }
@@ -116,9 +109,9 @@ public class ClientListenerThread extends AbstractListenerThread {
         try
         {
             // Close the connection if we need to
-            if( _socketChannel.isOpen() )
+            if( socketChannel.isOpen() )
             {
-                _socketChannel.close();
+                socketChannel.close();
             }
         }
         catch (IOException e)
@@ -139,7 +132,7 @@ public class ClientListenerThread extends AbstractListenerThread {
         sendPacket(new ConnectionAccepted(sessionId));
     }
 
-    public void Auth(int sessionId, String username, String password)
+    public void auth(int sessionId, String username, String password)
     {
         if(this.sessionId == sessionId)
         {
@@ -148,8 +141,7 @@ public class ClientListenerThread extends AbstractListenerThread {
             Account account = accountDao.getAccountByUsername(username);
             if(account != null && account.getPassword().equals(password))
             {
-                //ух... удачно авторизировались, записываем аккаунт в тред и отправляем AuthOk
-                _account = account;
+                // Well... we authed successfully, writing user account into the thread and sending AuthOk packet
                 sendPacket(new AuthOk());
             }
             else
@@ -160,12 +152,12 @@ public class ClientListenerThread extends AbstractListenerThread {
         }
         else
         {
-            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            // TODO: not valid session key, we need something to reply as an error, maybe AuthFailed packet?
             closeConnection();
         }
     }
 
-    public void SendServerList(int sessionId)
+    public void sendServerList(int sessionId)
     {
         if(this.sessionId == sessionId)
         {
@@ -174,7 +166,7 @@ public class ClientListenerThread extends AbstractListenerThread {
         }
         else
         {
-            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            // TODO: not valid session key, we need something to reply as an error, maybe AuthFailed packet?
             closeConnection();
         }
     }
@@ -182,28 +174,28 @@ public class ClientListenerThread extends AbstractListenerThread {
     private void closeConnection()
     {
         try {
-            _socketChannel.close();
+            socketChannel.close();
         } catch (IOException e) {
             log.error("Failed closing connection", e);
         }
     }
 
-    public void ServerLogin(int session_key, int server_id) {
-        if(this.sessionId == session_key)
+    public void serverLogin(int sessionKey, int serverId) {
+        if(this.sessionId == sessionKey)
         {
-            _gameServer = GameServerSocketInstance.getInstance().getGameServerList().get(server_id);
-            if(_gameServer == null)
+            GameServer gameServer = GameServerSocketInstance.getInstance().getGameServerList().get(serverId);
+            if(gameServer == null)
             {
                 //TODO: GameServerAuthFail packet
                 closeConnection();
             }
 
-            _gameSessionKey = random.nextInt();
-            sendPacket(new GameServerAuthOk(_gameSessionKey));
+            int gameSessionKey = random.nextInt();
+            sendPacket(new GameServerAuthOk(gameSessionKey));
         }
         else
         {
-            //TODO не валидный ключ сессии, что то нужно отдать как ошибку, скорее всего пакет AuthFailed
+            // TODO: not valid session key, we need something to reply as an error, maybe AuthFailed packet?
             closeConnection();
         }
     }

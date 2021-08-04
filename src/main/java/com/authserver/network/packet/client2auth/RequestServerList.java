@@ -5,17 +5,17 @@ import com.authserver.network.thread.ClientListenerThread;
 
 public class RequestServerList extends AbstractReceivablePacket {
 
-    private final ClientListenerThread _clientListenerThread;
+    private final ClientListenerThread clientListenerThread;
 
     public RequestServerList(ClientListenerThread clientListenerThread, byte[] packet) {
         super(clientListenerThread, packet);
-        _clientListenerThread = clientListenerThread;
+        this.clientListenerThread = clientListenerThread;
         handle();
     }
 
     private void handle() {
-        int session_key = readD();
-        _clientListenerThread.SendServerList(session_key);
+        int sessionKey = readD();
+        clientListenerThread.sendServerList(sessionKey);
     }
 
 }

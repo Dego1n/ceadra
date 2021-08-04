@@ -5,17 +5,17 @@ import com.authserver.network.thread.ClientListenerThread;
 
 public class RequestConnect extends AbstractReceivablePacket {
 
-    private final ClientListenerThread _clientListenerThread;
+    private final ClientListenerThread clientlistenerthread;
     public RequestConnect(ClientListenerThread clientListenerThread, byte[] packet)
     {
         super(clientListenerThread, packet);
-        _clientListenerThread = clientListenerThread;
+        clientlistenerthread = clientListenerThread;
         handle();
     }
 
     private void handle() {
-        short protocol_version = readH();
-        _clientListenerThread.onProtocolVersionReceived(protocol_version);
+        short protocolVersion = readH();
+        clientlistenerthread.onProtocolVersionReceived(protocolVersion);
     }
 
 }

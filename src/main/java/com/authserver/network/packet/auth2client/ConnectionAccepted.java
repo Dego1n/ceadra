@@ -4,16 +4,16 @@ import com.authserver.network.packet.AbstractSendablePacket;
 
 public class ConnectionAccepted extends AbstractSendablePacket {
 
-    private int _session_id;
-    public ConnectionAccepted(int session_id)
+    private final int sessionId;
+    public ConnectionAccepted(int sessionId)
     {
         super();
-        _session_id = session_id;
+        this.sessionId = sessionId;
         build();
     }
 
     public void build() {
         writeH(0x01); //PacketID
-        writeD(_session_id); //SessionID
+        writeD(sessionId); //SessionID
     }
 }

@@ -13,7 +13,7 @@ class AuthServer {
     public static void main( String[] args )
     {
         Config.Load();
-        AccountPresets.Load();
+        AccountPresets.load();
         AuthSocketInstance.getInstance();
         GameServerSocketInstance.getInstance();
         try

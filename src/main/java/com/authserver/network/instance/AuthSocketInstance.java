@@ -9,28 +9,28 @@ import java.util.List;
 
 public class AuthSocketInstance {
 
-    private static AuthSocketInstance _instance;
+    private static AuthSocketInstance instance;
 
     public static AuthSocketInstance getInstance()
     {
-        if(_instance == null)
-            _instance = new AuthSocketInstance();
+        if(instance == null)
+            instance = new AuthSocketInstance();
 
-        return _instance;
+        return instance;
     }
 
-    private final List<ClientListenerThread> _clientListenerThreads;
+    private final List<ClientListenerThread> clientListenerThreads;
 
     private AuthSocketInstance()
     {
         new AuthSocket();
-        _clientListenerThreads = new ArrayList<>();
+        clientListenerThreads = new ArrayList<>();
     }
 
     public ClientListenerThread newClient(AsynchronousSocketChannel socketChannel)
     {
         ClientListenerThread clientListenerThread = new ClientListenerThread(socketChannel);
-        _clientListenerThreads.add(clientListenerThread);
+        clientListenerThreads.add(clientListenerThread);
         return clientListenerThread;
     }
 

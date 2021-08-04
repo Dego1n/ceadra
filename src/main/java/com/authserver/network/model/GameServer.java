@@ -8,34 +8,34 @@ public class GameServer {
 
     private static final Logger log = LoggerFactory.getLogger(GameServer.class);
 
-    private final GameServerListenerThread _listenerThread;
-    private final String _address;
-    private final short _port;
-    private final String _name;
+    private final GameServerListenerThread listenerThread;
+    private final String address;
+    private final short port;
+    private final String name;
 
     public GameServer(GameServerListenerThread listenerThread, String address, short port, String name)
     {
-        _listenerThread = listenerThread;
-        _address = address;
-        _port = port;
-        _name = name;
-        log.info("Added new server to server list. Name: {} Address: {} Port:{}", _name,_address,_port);
+        this.listenerThread = listenerThread;
+        this.address = address;
+        this.port = port;
+        this.name = name;
+        log.info("Added new server to server list. Name: {} Address: {} Port:{}", this.name, this.address, this.port);
     }
 
     public GameServerListenerThread getListenerThread()
     {
-        return _listenerThread;
+        return listenerThread;
     }
 
     public String getAddress() {
-        return _address;
+        return address;
     }
 
     public short getPort() {
-        return _port;
+        return port;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 }

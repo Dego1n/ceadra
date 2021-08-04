@@ -4,6 +4,8 @@ import com.authserver.network.instance.GameServerSocketInstance;
 import com.authserver.network.packet.AbstractSendablePacket;
 import com.authserver.network.packet.auth2game.Ping;
 import com.authserver.network.packet.game2auth.RequestRegisterGameServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -16,12 +18,14 @@ import java.util.concurrent.TimeoutException;
 
 public class GameServerListenerThread extends AbstractListenerThread{
 
-    private final AsynchronousSocketChannel _socketChannel;
+    private static final Logger log = LoggerFactory.getLogger(GameServerListenerThread.class);
+
+    private final AsynchronousSocketChannel socketChannel;
 
     public GameServerListenerThread(AsynchronousSocketChannel socketChanel)
     {
-        _socketChannel = socketChanel;
-        packetBuffer = new ArrayList();
+        this.socketChannel = socketChanel;
+        packetBuffer = new ArrayList<>();
     }
 
     private boolean writeIsPending = false;
@@ -34,11 +38,11 @@ public class GameServerListenerThread extends AbstractListenerThread{
             packetBuffer.add(packet);
         else {
             writeIsPending = true;
-        _socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, GameServerListenerThread>() {
+        socketChannel.write(ByteBuffer.wrap(packet.prepareAndGetData()), this, new CompletionHandler<Integer, GameServerListenerThread>() {
             @Override
             public void completed(Integer result, GameServerListenerThread thread) {
                 thread.writeIsPending = false;
-                if(packetBuffer.size() > 0)
+                if(!packetBuffer.isEmpty())
                 {
                     thread.sendPacket(packetBuffer.get(0));
                 }
@@ -61,13 +65,13 @@ public class GameServerListenerThread extends AbstractListenerThread{
         {
 
 
-            while( _socketChannel.isOpen())
+            while( socketChannel.isOpen())
             {
                 // Выделаем память 2 байта в байтбаффер для размера пакета
                 ByteBuffer byteBuffer = ByteBuffer.allocate( 2 );
 
                     // Читаем размер пакета
-                    _socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES);
+                    socketChannel.read(byteBuffer).get(2, TimeUnit.MINUTES);
 
                     //Конвертим байтбаффер в массив байтов
                     byte[] bytePacketSize = byteBuffer.array();
@@ -79,7 +83,7 @@ public class GameServerListenerThread extends AbstractListenerThread{
                     byteBuffer = ByteBuffer.allocate(size - 2);
 
                     //Читаем пакет
-                    _socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS);
+                    socketChannel.read(byteBuffer).get(30, TimeUnit.SECONDS);
 
                 //Передаем пакет Хендлеру
                 GameServerPacketHandler.handlePacket(this,byteBuffer.array());
@@ -87,7 +91,8 @@ public class GameServerListenerThread extends AbstractListenerThread{
         }
         catch (InterruptedException | ExecutionException | TimeoutException e)
         {
-
+            log.error("", e);
+            Thread.currentThread().interrupt();
         }
 
         timerPing.cancel();
@@ -96,20 +101,24 @@ public class GameServerListenerThread extends AbstractListenerThread{
         try
         {
             // Close the connection if we need to
-            if( _socketChannel.isOpen() )
+            if( socketChannel.isOpen() )
             {
-                _socketChannel.close();
+                socketChannel.close();
             }
         }
-        catch (IOException e1)
+        catch (IOException e)
         {
-            e1.printStackTrace();
+            log.error("Failed to close connection in game server listener thread", e);
         }
     }
 }
 class GameServerPacketHandler {
+    private static final Logger log = LoggerFactory.getLogger(GameServerPacketHandler.class);
 
     private static final short REQUEST_REGISTER_GAME_SERVER = 0x01;
+    private GameServerPacketHandler() {
+
+    }
     static void handlePacket(GameServerListenerThread authServer, byte [] packet)
     {
         short packetID = (short)(((packet[1] & 0xFF) << 8) | (packet[0] & 0xFF));
@@ -119,22 +128,25 @@ class GameServerPacketHandler {
             case REQUEST_REGISTER_GAME_SERVER:
                 new RequestRegisterGameServer(authServer,packet);
                 break;
+            default:
+                log.warn("Received unknown packet ID: {}", packetID);
+                break;
         }
     }
 }
 
 class GameServerPing extends TimerTask {
 
-    private GameServerListenerThread _thread;
+    private GameServerListenerThread thread;
 
     public GameServerPing(GameServerListenerThread thread)
     {
-        _thread = thread;
+        this.thread = thread;
     }
 
     @Override
     public void run() {
-        _thread.sendPacket(new Ping());
+        thread.sendPacket(new Ping());
     }
 }
 

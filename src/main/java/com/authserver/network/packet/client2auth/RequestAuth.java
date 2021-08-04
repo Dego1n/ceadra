@@ -6,21 +6,21 @@ import com.authserver.network.thread.ClientListenerThread;
 public class RequestAuth extends AbstractReceivablePacket {
 
 
-    private final ClientListenerThread _clientListenerThread;
+    private final ClientListenerThread clientListenerThread;
 
     public RequestAuth(ClientListenerThread clientListenerThread, byte[] packet)
     {
         super(clientListenerThread, packet);
-        _clientListenerThread = clientListenerThread;
+        this.clientListenerThread = clientListenerThread;
         handle();
     }
 
     private void handle() {
 
-        int session_id = readD();
+        int sessionId = readD();
         String username = readS();
         String password = readS();
 
-        _clientListenerThread.Auth(session_id,username,password);
+        clientListenerThread.auth(sessionId,username,password);
     }
 }

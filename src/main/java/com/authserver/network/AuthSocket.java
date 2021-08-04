@@ -14,25 +14,18 @@ import java.nio.channels.CompletionHandler;
 
 public class AuthSocket {
     private static final Logger log = LoggerFactory.getLogger(AuthSocket.class);
-    public AuthSocket()
-    {
-        try
-        {
-            log.info("Listening clients on {}:{}", Config.AUTH_SOCKET_LISTEN_ADDRESS, Config.AUTH_SOCKET_LISTEN_PORT);
-            // Создаем AsynchronousServerSocketChannel, адрес и порт слушателя достаем из конфига
-            final AsynchronousServerSocketChannel listener =
-                    AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS,Config.AUTH_SOCKET_LISTEN_PORT));
 
-            // Делаем коллбек на accept
-            listener.accept( null, new CompletionHandler<AsynchronousSocketChannel,Void>() {
+    public AuthSocket() {
+        try (final AsynchronousServerSocketChannel listener =
+                     AsynchronousServerSocketChannel.open().bind(new InetSocketAddress(Config.AUTH_SOCKET_LISTEN_ADDRESS, Config.AUTH_SOCKET_LISTEN_PORT))) {
+            log.info("Listening clients on {}:{}", Config.AUTH_SOCKET_LISTEN_ADDRESS, Config.AUTH_SOCKET_LISTEN_PORT);
+            // Callback for accept
+            listener.accept(null, new CompletionHandler<AsynchronousSocketChannel, Void>() {
 
                 @Override
-                public void completed(AsynchronousSocketChannel ch, Void att)
-                {
-                    // Принимаем соединение
-                    listener.accept( null, this );
-                    ///
-
+                public void completed(AsynchronousSocketChannel ch, Void att) {
+                    // Accepting connection
+                    listener.accept(null, this);
                     ClientListenerThread clientListenerThread = AuthSocketInstance.getInstance().newClient(ch);
                     clientListenerThread.receivableStream();
 
@@ -43,9 +36,7 @@ public class AuthSocket {
                     //TODO
                 }
             });
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             log.error(e.getMessage());
         }
     }

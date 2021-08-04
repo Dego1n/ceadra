@@ -5,11 +5,11 @@ import com.authserver.network.packet.IServerPacket;
 
 public class AuthFailed extends AbstractSendablePacket implements IServerPacket {
 
-    public final static short SYSTEM_ERROR = 0x00;
-    public final static short INVALID_CREDENTIALS = 0x01;
-    public final static short ACCESS_DENIED = 0x02;
-    public final static short ACCOUNT_ALREADY_IN_USE = 0x03;
-    public final static short SERVICE_UNAVAILABLE = 0x04;
+    public static final short SYSTEM_ERROR = 0x00;
+    public static final short INVALID_CREDENTIALS = 0x01;
+    public static final short ACCESS_DENIED = 0x02;
+    public static final short ACCOUNT_ALREADY_IN_USE = 0x03;
+    public static final short SERVICE_UNAVAILABLE = 0x04;
 
     private short reason;
 

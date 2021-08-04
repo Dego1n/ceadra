@@ -9,7 +9,11 @@ public class AccountPresets {
 
     private static final Logger log = LoggerFactory.getLogger(AccountPresets.class);
 
-    public static void Load()
+    private AccountPresets() {
+
+    }
+
+    public static void load()
     {
         AccountDao accountDao = new AccountDao();
 
